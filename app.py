@@ -95,7 +95,7 @@ def require_admin() -> None:
             st.rerun()
         st.error("بيانات الدخول غير صحيحة.")
     st.caption("الوصول محمي بحساب الإدارة. لا تُعرض بيانات الدخول داخل الواجهة.")
-    st.markdown('<div class="login-footer"><strong>عبدالله محمد</strong><br><span>للاستفسارات والدعم المباشر</span><br><a class="whatsapp-link" href="https://wa.me/598727698" target="_blank">تواصل عبر واتساب</a><br><small>+598727698</small></div>', unsafe_allow_html=True)
+    st.markdown('<div class="login-footer"><strong>عبدالله محمد</strong><br><span>للاستفسارات والدعم المباشر</span><br><a class="whatsapp-link" href="https://wa.me/97058727698" target="_blank">تواصل عبر واتساب</a><br><small>+97058727698</small></div>', unsafe_allow_html=True)
     st.markdown("</div>", unsafe_allow_html=True)
     st.stop()
 
