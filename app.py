@@ -88,14 +88,13 @@ def require_admin() -> None:
         expected_username = admin_config.get("username", "")
         stored_hash = admin_config.get("password_hash", "")
         if not expected_username or not stored_hash:
-            # Demo-only fallback. Replace with Streamlit Secrets for any real deployment.
-            expected_username = "abood808"
-            stored_hash = "c82259733af969d650d45483afcfd716:c63d466a184ea6956c4bd9fe8fbe67226a0b8e445924112ab503182aa1037447"
+            st.error("لم يتم إعداد حساب الإدارة. أضف username و password_hash في Streamlit Secrets.")
+            st.stop()
         if username == expected_username and _password_matches(password, stored_hash):
             st.session_state.authenticated = True
             st.rerun()
         st.error("بيانات الدخول غير صحيحة.")
-    st.caption("هذه شاشة دخول إدارية لنسخة العرض التجريبية.")
+    st.caption("الوصول محمي بحساب الإدارة. لا تُعرض بيانات الدخول داخل الواجهة.")
     st.markdown('<div class="login-footer"><strong>عبدالله محمد</strong><br><span>للاستفسارات والدعم المباشر</span><br><a class="whatsapp-link" href="https://wa.me/598727698" target="_blank">تواصل عبر واتساب</a><br><small>+598727698</small></div>', unsafe_allow_html=True)
     st.markdown("</div>", unsafe_allow_html=True)
     st.stop()
@@ -260,7 +259,27 @@ with right:
     st.plotly_chart(line, use_container_width=True, config={"displayModeBar": False})
     st.markdown('</div>', unsafe_allow_html=True)
 
-st.markdown('<div class="section-label">03 / BREAK-EVEN ANALYSIS</div>', unsafe_allow_html=True)
+st.markdown('<div class="section-label">03 / SCENARIO INSIGHTS</div>', unsafe_allow_html=True)
+st.markdown('<div class="section-intro">استخدم تحليل الحساسية لفهم أكثر المتغيرات تأثيرًا، ثم راجع مكونات الربح قبل اعتماد السيناريو.</div>', unsafe_allow_html=True)
+insight_left, insight_right = st.columns([1, 1])
+with insight_left:
+    st.markdown('<div class="panel">', unsafe_allow_html=True)
+    st.subheader("حساسية الربح للسعر")
+    sensitivity_changes = [-20, -10, 0, 10, 20]
+    sensitivity_profits = [calculate(scenario["fixed_costs"], scenario["variable_cost"], scenario["price"] * (1 + change / 100), scenario["units"])["profit"] for change in sensitivity_changes]
+    sensitivity = go.Figure(go.Bar(x=[f"{change:+d}%" for change in sensitivity_changes], y=sensitivity_profits, marker_color=["#f08c8c", "#ffb4a2", "#7aa7ff", "#63e6be", "#087f5b"], text=[money(value) for value in sensitivity_profits], textposition="outside"))
+    sensitivity.update_layout(template=plot_template, height=340, margin=dict(l=10,r=10,t=20,b=10), xaxis_title="تغير السعر", yaxis_title=f"الربح ({currency_code})", showlegend=False)
+    st.plotly_chart(sensitivity, use_container_width=True, config={"displayModeBar": False})
+    st.markdown('</div>', unsafe_allow_html=True)
+with insight_right:
+    st.markdown('<div class="panel">', unsafe_allow_html=True)
+    st.subheader("جسر الربح: من الإيراد إلى النتيجة")
+    waterfall = go.Figure(go.Waterfall(orientation="v", measure=["absolute", "relative", "relative", "total"], x=["الإيرادات", "التكاليف المتغيرة", "التكاليف الثابتة", "الربح"], y=[scenario["revenue"], -scenario["variable_total"], -scenario["fixed_costs"], scenario["profit"]], connector={"line": {"color": "#b8c7da"}}, increasing={"marker": {"color": "#63e6be"}}, decreasing={"marker": {"color": "#f08c8c"}}, totals={"marker": {"color": "#2457c5"}}))
+    waterfall.update_layout(template=plot_template, height=340, margin=dict(l=10,r=10,t=20,b=10), yaxis_title=currency_code, showlegend=False)
+    st.plotly_chart(waterfall, use_container_width=True, config={"displayModeBar": False})
+    st.markdown('</div>', unsafe_allow_html=True)
+
+st.markdown('<div class="section-label">04 / BREAK-EVEN ANALYSIS</div>', unsafe_allow_html=True)
 st.markdown('<div class="section-intro">اكتشف عدد الوحدات التي يجب بيعها لتغطية التكاليف في كل حالة.</div>', unsafe_allow_html=True)
 # ---------- Break-even analysis ----------
 st.write("")
@@ -275,7 +294,7 @@ for col, label, data in [(be_cols[0], "الوضع الحالي", current), (be_c
         st.progress(min(1.0, data["units"] / data["break_even"]) if data["break_even"] not in (0, float("inf")) else 0.0, text=f"تغطية {min(100, data['units']/data['break_even']*100) if data['break_even'] not in (0,float('inf')) else 0:.0f}% من نقطة التعادل")
 st.markdown('</div>', unsafe_allow_html=True)
 
-st.markdown('<div class="section-label">04 / ASSUMPTIONS & INSIGHTS</div>', unsafe_allow_html=True)
+st.markdown('<div class="section-label">05 / ASSUMPTIONS & INSIGHTS</div>', unsafe_allow_html=True)
 st.markdown('<div class="section-intro">راجع الافتراضات المستخدمة والقراءة السريعة قبل اتخاذ أي قرار.</div>', unsafe_allow_html=True)
 # ---------- Detail table and insight ----------
 st.write("")
