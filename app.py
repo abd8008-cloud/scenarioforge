@@ -112,12 +112,30 @@ def money(value: float) -> str:
 def pct(value: float) -> str:
     return f"{value:+.1%}"
 
+# ---------- Markets and currencies ----------
+MARKETS = {
+    "السعودية": {"currency": "SAR", "currency_name": "ريال سعودي", "locale": "ar-SA"},
+    "الإمارات": {"currency": "AED", "currency_name": "درهم إماراتي", "locale": "ar-AE"},
+    "الكويت": {"currency": "KWD", "currency_name": "دينار كويتي", "locale": "ar-KW"},
+    "قطر": {"currency": "QAR", "currency_name": "ريال قطري", "locale": "ar-QA"},
+    "البحرين": {"currency": "BHD", "currency_name": "دينار بحريني", "locale": "ar-BH"},
+    "عُمان": {"currency": "OMR", "currency_name": "ريال عُماني", "locale": "ar-OM"},
+    "الأردن": {"currency": "JOD", "currency_name": "دينار أردني", "locale": "ar-JO"},
+    "مصر": {"currency": "EGP", "currency_name": "جنيه مصري", "locale": "ar-EG"},
+    "المغرب": {"currency": "MAD", "currency_name": "درهم مغربي", "locale": "ar-MA"},
+    "الولايات المتحدة": {"currency": "USD", "currency_name": "دولار أمريكي", "locale": "en-US"},
+    "المملكة المتحدة": {"currency": "GBP", "currency_name": "جنيه إسترليني", "locale": "en-GB"},
+    "السوق الدولي": {"currency": "USD", "currency_name": "دولار أمريكي", "locale": "en-US"},
+}
+
 # ---------- Sidebar inputs ----------
 with st.sidebar:
     st.markdown('<div class="eyebrow">INPUT DASHBOARD</div>', unsafe_allow_html=True)
     st.header("بيانات النشاط الحالية")
-    currency = st.selectbox("العملة", ["USD — دولار أمريكي", "SAR — ريال سعودي", "AED — درهم إماراتي", "EGP — جنيه مصري"], index=0)
-    currency_code = currency.split(" ")[0]
+    market = st.selectbox("السوق المستهدف للتحليل", list(MARKETS.keys()), index=0)
+    market_profile = MARKETS[market]
+    currency_code = market_profile["currency"]
+    st.caption(f"العملة المستخدمة: {market_profile['currency_name']} ({currency_code}) • المنطقة: {market_profile['locale']}")
     st.caption("أدخل أرقام الشهر الحالي. جميع النتائج تقديرية لدعم القرار وليست بديلاً عن المحاسبة.")
     fixed = st.number_input("التكاليف الثابتة الشهرية", min_value=0.0, value=8500.0, step=500.0)
     variable = st.number_input("التكلفة المتغيرة لكل وحدة", min_value=0.0, value=18.0, step=1.0)
@@ -144,6 +162,7 @@ st.markdown('<div class="eyebrow">DIGITAL BUSINESS INTELLIGENCE / 01</div>', uns
 st.title("ScenarioForge")
 st.markdown('<div class="subtitle">محرك سيناريوهات الأعمال الرقمية — حوّل افتراضاتك إلى قرارات أوضح.</div>', unsafe_allow_html=True)
 st.markdown('<span class="scenario-badge">● LIVE SCENARIO SIMULATION</span>', unsafe_allow_html=True)
+st.caption(f"السوق المختار: {market} • العملة: {market_profile['currency_name']} ({currency_code})")
 st.write("")
 
 # ---------- KPI strip ----------
