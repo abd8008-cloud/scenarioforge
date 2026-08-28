@@ -16,23 +16,23 @@ st.markdown(
     """
     <style>
     @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
-    :root { --ink:#edf2f7; --muted:#97a6ba; --panel:#111a2b; --panel2:#162239; --accent:#63e6be; --blue:#7aa7ff; }
+    :root { --ink:#172033; --muted:#667085; --panel:#ffffff; --panel2:#f5f8fc; --accent:#087f5b; --blue:#2457c5; }
     html, body, [class*="css"] { font-family:'DM Sans', sans-serif; }
-    .stApp { background: radial-gradient(circle at 75% -10%, #1d3357 0, #0a1120 38%, #070b14 100%); color:var(--ink); }
-    h1,h2,h3 { font-family:'Space Grotesk', sans-serif; letter-spacing:-.03em; }
+    .stApp { background:linear-gradient(135deg,#f7f9fc 0%,#eef3f9 100%); color:var(--ink); }
+    h1,h2,h3 { font-family:'Space Grotesk', sans-serif; letter-spacing:-.03em; color:#14213d; }
     h1 { font-size:2.35rem !important; margin-bottom:.15rem; }
-    [data-testid="stSidebar"] { background:linear-gradient(180deg,#0d1728,#0a1020); border-right:1px solid #263650; }
-    [data-testid="stSidebar"] h2, [data-testid="stSidebar"] label { color:#dbe6f5 !important; }
+    [data-testid="stSidebar"] { background:linear-gradient(180deg,#ffffff,#f1f5fa); border-right:1px solid #d9e2ef; }
+    [data-testid="stSidebar"] h2, [data-testid="stSidebar"] label { color:#172033 !important; }
     .eyebrow { color:var(--accent); text-transform:uppercase; letter-spacing:.18em; font-size:.72rem; font-weight:700; }
     .subtitle { color:var(--muted); font-size:1rem; margin-bottom:1.2rem; }
-    .panel { background:rgba(17,26,43,.78); border:1px solid #263650; border-radius:18px; padding:1.15rem 1.25rem; box-shadow:0 15px 45px rgba(0,0,0,.16); }
-    .scenario-badge { display:inline-block; background:rgba(99,230,190,.12); border:1px solid rgba(99,230,190,.35); color:#9af3d2; padding:.35rem .7rem; border-radius:99px; font-size:.78rem; font-weight:600; }
+    .panel { background:rgba(255,255,255,.96); border:1px solid #d9e2ef; border-radius:18px; padding:1.15rem 1.25rem; box-shadow:0 10px 30px rgba(30,55,90,.08); }
+    .scenario-badge { display:inline-block; background:#e5f7f0; border:1px solid #9adbc5; color:#087f5b; padding:.35rem .7rem; border-radius:99px; font-size:.78rem; font-weight:600; }
     .kpi-label { color:var(--muted); font-size:.78rem; text-transform:uppercase; letter-spacing:.08em; }
-    .kpi-value { font-family:'Space Grotesk'; font-size:1.65rem; font-weight:700; color:#f7fbff; margin-top:.25rem; }
+    .kpi-value { font-family:'Space Grotesk'; font-size:1.65rem; font-weight:700; color:#14213d; margin-top:.25rem; }
     .kpi-delta { font-size:.78rem; margin-top:.25rem; }
-    .positive { color:#63e6be; } .negative { color:#ff8e8e; } .neutral { color:#97a6ba; }
+    .positive { color:#087f5b; } .negative { color:#c92a2a; } .neutral { color:#667085; }
     .stSlider [data-baseweb="slider"] { margin-top:-.2rem; }
-    div[data-testid="stMetric"] { background:#111a2b; border:1px solid #263650; padding:1rem; border-radius:14px; }
+    div[data-testid="stMetric"] { background:#ffffff; border:1px solid #d9e2ef; padding:1rem; border-radius:14px; }
     </style>
     """, unsafe_allow_html=True,
 )
@@ -65,7 +65,7 @@ def require_admin() -> None:
     st.title("تسجيل دخول الإدارة")
     st.markdown('<div class="subtitle">أدخل بيانات المسؤول للوصول إلى محرك السيناريوهات.</div>', unsafe_allow_html=True)
     with st.form("admin_login"):
-        username = st.text_input("اسم المستخدم", placeholder="admin")
+        username = st.text_input("اسم المستخدم", placeholder="abood808")
         password = st.text_input("كلمة المرور", type="password")
         submitted = st.form_submit_button("دخول آمن", use_container_width=True)
     if submitted:
@@ -77,7 +77,7 @@ def require_admin() -> None:
         stored_hash = admin_config.get("password_hash", "")
         if not expected_username or not stored_hash:
             # Demo-only fallback. Replace with Streamlit Secrets for any real deployment.
-            expected_username = "admin"
+            expected_username = "abood808"
             stored_hash = "1b4c1bac112448be9e3635fb340d4f94:8851dd13377bcc36a4aa5064a4c2a490938006cc56f3bd301d9e5a73101e36f2"
         if username == expected_username and _password_matches(password, stored_hash):
             st.session_state.authenticated = True
@@ -162,7 +162,7 @@ with cols[3]:
 st.write("")
 # ---------- Comparison charts ----------
 left, right = st.columns([1, 1])
-plot_template = "plotly_dark"
+plot_template = "plotly_white"
 with left:
     st.markdown('<div class="panel">', unsafe_allow_html=True)
     st.subheader("مقارنة الأداء المالي")
@@ -218,7 +218,8 @@ with info_col:
 with table_col:
     st.markdown('<div class="panel">', unsafe_allow_html=True)
     st.subheader("تفاصيل الافتراضات")
-    detail = pd.DataFrame({"المتغير": ["سعر البيع / وحدة", "التكلفة المتغيرة / وحدة", "التكاليف الثابتة", "حجم المبيعات"], "الحالي": [f"{current['price']:,.2f}", f"{current['variable_cost']:,.2f}", f"{current['fixed_costs']:,.0f}", f"{current['units']:,.0f}"], "السيناريو": [f"{scenario['price']:,.2f}", f"{scenario['variable_cost']:,.2f}", f"{scenario['fixed_costs']:,.0f}", f"{scenario['units']:,.0f}"], "التغير": [pct(price_change/100), pct(variable_change/100), pct(fixed_change/100), pct(volume_change/100)]})
+    st.caption("مقارنة منظمة بين خط الأساس والقيم الجديدة بعد تطبيق السيناريو.")
+    detail = pd.DataFrame({"المتغير": ["سعر البيع / وحدة", "التكلفة المتغيرة / وحدة", "التكاليف الثابتة", "حجم المبيعات"], "الوضع الحالي": [f"{current['price']:,.2f}", f"{current['variable_cost']:,.2f}", f"{current['fixed_costs']:,.0f}", f"{current['units']:,.0f}"], "السيناريو المقترح": [f"{scenario['price']:,.2f}", f"{scenario['variable_cost']:,.2f}", f"{scenario['fixed_costs']:,.0f}", f"{scenario['units']:,.0f}"], "نسبة التغير": [pct(price_change/100), pct(variable_change/100), pct(fixed_change/100), pct(volume_change/100)]})
     st.dataframe(detail, hide_index=True, use_container_width=True)
     st.markdown('</div>', unsafe_allow_html=True)
 
