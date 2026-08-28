@@ -33,8 +33,12 @@ st.markdown(
     .positive { color:#087f5b; } .negative { color:#c92a2a; } .neutral { color:#667085; }
     .stSlider [data-baseweb="slider"] { margin-top:-.2rem; }
     div[data-testid="stMetric"] { background:#ffffff; border:1px solid #d9e2ef; padding:1rem; border-radius:14px; }
-    div.stButton > button, div.stFormSubmitButton > button { border-radius:10px; min-height:2.7rem; font-weight:700; border:1px solid #b8c7da; background:#f8fafc; color:#14213d; transition:all .2s ease; }
-    div.stButton > button:hover, div.stFormSubmitButton > button:hover { border-color:#087f5b; color:#087f5b; box-shadow:0 5px 15px rgba(8,127,91,.12); }
+    div.stButton > button, div.stFormSubmitButton > button { border-radius:10px; min-height:2.7rem; font-weight:700; border:1px solid #087f5b; background:#087f5b; color:#ffffff; transition:all .2s ease; }
+    div.stButton > button:hover, div.stFormSubmitButton > button:hover { border-color:#055c42; background:#055c42; color:#ffffff; box-shadow:0 5px 15px rgba(8,127,91,.22); }
+    div.stFormSubmitButton > button { background:linear-gradient(135deg,#087f5b,#0ca678); border:none; font-size:1rem; }
+    div.stFormSubmitButton > button:hover { background:linear-gradient(135deg,#066c4e,#087f5b); }
+    .section-label { color:#087f5b; font-size:.75rem; font-weight:800; letter-spacing:.12em; margin-top:1.4rem; margin-bottom:.35rem; }
+    .section-intro { color:#667085; margin-bottom:.8rem; }
     .login-card { background:#ffffff; border:1px solid #d9e2ef; border-radius:22px; padding:2rem; box-shadow:0 18px 45px rgba(30,55,90,.12); }
     .help-card { background:#ffffff; border:1px solid #d9e2ef; border-radius:16px; padding:1.25rem; min-height:155px; box-shadow:0 8px 24px rgba(30,55,90,.06); }
     .step-number { display:inline-flex; width:30px; height:30px; border-radius:50%; align-items:center; justify-content:center; background:#e5f7f0; color:#087f5b; font-weight:800; margin-left:.4rem; }
@@ -70,7 +74,7 @@ def require_admin() -> None:
     st.title("مرحبًا بك في ScenarioForge")
     st.markdown('<div class="subtitle">سجّل الدخول للوصول إلى لوحة تحليل السيناريوهات المالية.</div>', unsafe_allow_html=True)
     with st.form("admin_login"):
-        username = st.text_input("اسم المستخدم", placeholder="abood808")
+        username = st.text_input("اسم المستخدم", placeholder="أدخل اسم المستخدم")
         password = st.text_input("كلمة المرور", type="password")
         submitted = st.form_submit_button("دخول إلى لوحة التحليل", use_container_width=True)
     if submitted:
@@ -88,7 +92,7 @@ def require_admin() -> None:
             st.session_state.authenticated = True
             st.rerun()
         st.error("بيانات الدخول غير صحيحة.")
-    st.caption("نسخة الديمو تستخدم بيانات دخول عامة للعرض فقط؛ لا تستخدمها مع بيانات حقيقية.")
+    st.caption("هذه شاشة دخول إدارية لنسخة العرض التجريبية.")
     st.markdown("</div>", unsafe_allow_html=True)
     st.stop()
 
@@ -207,6 +211,8 @@ st.markdown('<span class="scenario-badge">● LIVE SCENARIO SIMULATION</span>', 
 st.caption(f"السوق المختار: {market} • العملة: {market_profile['currency_name']} ({currency_code})")
 st.write("")
 
+st.markdown('<div class="section-label">01 / EXECUTIVE SUMMARY</div>', unsafe_allow_html=True)
+st.markdown('<div class="section-intro">ملخص سريع يوضح أثر السيناريو المقترح على مؤشرات النشاط الأساسية.</div>', unsafe_allow_html=True)
 # ---------- KPI strip ----------
 profit_delta = scenario["profit"] - current["profit"]
 be_delta = scenario["break_even"] - current["break_even"] if scenario["break_even"] != float("inf") else 0
@@ -221,6 +227,8 @@ with cols[3]:
     st.markdown(f'<div class="panel"><div class="kpi-label">الإيرادات الشهرية</div><div class="kpi-value">{money(scenario["revenue"])} {currency_code}</div><div class="kpi-delta positive">{pct((scenario["revenue"]-current["revenue"])/current["revenue"] if current["revenue"] else 0)} نمو</div></div>', unsafe_allow_html=True)
 
 st.write("")
+st.markdown('<div class="section-label">02 / FINANCIAL PERFORMANCE</div>', unsafe_allow_html=True)
+st.markdown('<div class="section-intro">قارن الإيرادات والتكاليف والربح، ثم راقب تغير الربحية مع حجم المبيعات.</div>', unsafe_allow_html=True)
 # ---------- Comparison charts ----------
 left, right = st.columns([1, 1])
 plot_template = "plotly_white"
@@ -248,6 +256,8 @@ with right:
     st.plotly_chart(line, use_container_width=True, config={"displayModeBar": False})
     st.markdown('</div>', unsafe_allow_html=True)
 
+st.markdown('<div class="section-label">03 / BREAK-EVEN ANALYSIS</div>', unsafe_allow_html=True)
+st.markdown('<div class="section-intro">اكتشف عدد الوحدات التي يجب بيعها لتغطية التكاليف في كل حالة.</div>', unsafe_allow_html=True)
 # ---------- Break-even analysis ----------
 st.write("")
 st.markdown('<div class="panel">', unsafe_allow_html=True)
@@ -261,6 +271,8 @@ for col, label, data in [(be_cols[0], "الوضع الحالي", current), (be_c
         st.progress(min(1.0, data["units"] / data["break_even"]) if data["break_even"] not in (0, float("inf")) else 0.0, text=f"تغطية {min(100, data['units']/data['break_even']*100) if data['break_even'] not in (0,float('inf')) else 0:.0f}% من نقطة التعادل")
 st.markdown('</div>', unsafe_allow_html=True)
 
+st.markdown('<div class="section-label">04 / ASSUMPTIONS & INSIGHTS</div>', unsafe_allow_html=True)
+st.markdown('<div class="section-intro">راجع الافتراضات المستخدمة والقراءة السريعة قبل اتخاذ أي قرار.</div>', unsafe_allow_html=True)
 # ---------- Detail table and insight ----------
 st.write("")
 info_col, table_col = st.columns([.85, 1.15])
