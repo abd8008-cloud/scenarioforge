@@ -76,13 +76,14 @@ def require_admin() -> None:
         expected_username = admin_config.get("username", "")
         stored_hash = admin_config.get("password_hash", "")
         if not expected_username or not stored_hash:
-            st.error("لم يتم إعداد بيانات الإدارة بعد. أضف قسم [admin] في Streamlit Secrets.")
-            st.stop()
+            # Demo-only fallback. Replace with Streamlit Secrets for any real deployment.
+            expected_username = "admin"
+            stored_hash = "1b4c1bac112448be9e3635fb340d4f94:8851dd13377bcc36a4aa5064a4c2a490938006cc56f3bd301d9e5a73101e36f2"
         if username == expected_username and _password_matches(password, stored_hash):
             st.session_state.authenticated = True
             st.rerun()
         st.error("بيانات الدخول غير صحيحة.")
-    st.caption("تُخزّن كلمة المرور كتجزئة PBKDF2 داخل Streamlit Secrets ولا تُحفظ في GitHub.")
+    st.caption("نسخة الديمو تستخدم بيانات دخول عامة للعرض فقط؛ لا تستخدمها مع بيانات حقيقية.")
     st.markdown("</div>", unsafe_allow_html=True)
     st.stop()
 
