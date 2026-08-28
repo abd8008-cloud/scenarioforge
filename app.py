@@ -39,7 +39,10 @@ st.markdown(
     div.stFormSubmitButton > button:hover { background:linear-gradient(135deg,#066c4e,#087f5b); }
     .section-label { color:#087f5b; font-size:.75rem; font-weight:800; letter-spacing:.12em; margin-top:1.4rem; margin-bottom:.35rem; }
     .section-intro { color:#667085; margin-bottom:.8rem; }
-    .login-card { background:#ffffff; border:1px solid #d9e2ef; border-radius:22px; padding:2rem; box-shadow:0 18px 45px rgba(30,55,90,.12); }
+    .login-card { max-width:520px; margin:8vh auto 0; padding:1rem .5rem; }
+    .login-footer { margin-top:1.8rem; padding-top:1rem; border-top:1px solid #e4eaf2; text-align:center; color:#667085; font-size:.9rem; }
+    .whatsapp-link { display:inline-block; margin-top:.6rem; padding:.65rem 1.2rem; border-radius:10px; background:#25D366; color:#ffffff !important; text-decoration:none !important; font-weight:700; }
+    .whatsapp-link:hover { background:#1da851; }
     .help-card { background:#ffffff; border:1px solid #d9e2ef; border-radius:16px; padding:1.25rem; min-height:155px; box-shadow:0 8px 24px rgba(30,55,90,.06); }
     .step-number { display:inline-flex; width:30px; height:30px; border-radius:50%; align-items:center; justify-content:center; background:#e5f7f0; color:#087f5b; font-weight:800; margin-left:.4rem; }
     </style>
@@ -93,6 +96,7 @@ def require_admin() -> None:
             st.rerun()
         st.error("بيانات الدخول غير صحيحة.")
     st.caption("هذه شاشة دخول إدارية لنسخة العرض التجريبية.")
+    st.markdown('<div class="login-footer"><strong>عبدالله محمد</strong><br><span>للاستفسارات والدعم المباشر</span><br><a class="whatsapp-link" href="https://wa.me/598727698" target="_blank">تواصل عبر واتساب</a><br><small>+598727698</small></div>', unsafe_allow_html=True)
     st.markdown("</div>", unsafe_allow_html=True)
     st.stop()
 
