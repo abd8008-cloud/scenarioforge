@@ -62,8 +62,30 @@ scenarioforge/
 ├── app.py
 ├── requirements.txt
 ├── README.md
-└── .gitignore
+├── .gitignore
+├── .streamlit/secrets.toml.example
+└── scripts/generate_password_hash.py
 ```
+
+## تسجيل دخول الإدارة
+
+أضيفت طبقة دخول لحماية لوحة المحاكاة. لا تضع كلمة المرور نفسها داخل GitHub، خصوصًا بعد جعل المستودع عامًا. يستخدم التطبيق **PBKDF2-HMAC-SHA256** مع salt عشوائي وعدد تكرارات مرتفع، ويقارن التجزئة باستخدام مقارنة آمنة.
+
+لإنشاء تجزئة لكلمة مرور جديدة محليًا، نفّذ:
+
+```bash
+python scripts/generate_password_hash.py YOUR_STRONG_PASSWORD
+```
+
+انسخ الناتج، ثم أنشئ ملفًا محليًا باسم `.streamlit/secrets.toml`:
+
+```toml
+[admin]
+username = "admin"
+password_hash = "ضع_الناتج_هنا"
+```
+
+على Streamlit Cloud، افتح إعدادات التطبيق ثم **Settings → Secrets** والصق محتوى ملف الأسرار. لا ترفع ملف `.streamlit/secrets.toml` إلى GitHub؛ الملف الموجود في المستودع هو مثال فقط. استخدم كلمة مرور قوية وفريدة، وغيّرها إذا شاركتها مع أي شخص.
 
 ## حدود النموذج
 

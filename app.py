@@ -1,7 +1,8 @@
+import hashlib
+import hmac
 import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
-import plotly.express as px
 
 st.set_page_config(
     page_title="ScenarioForge | Digital Business Scenario Engine",
@@ -35,6 +36,52 @@ st.markdown(
     </style>
     """, unsafe_allow_html=True,
 )
+
+# ---------- Secure admin authentication ----------
+def _password_matches(password: str, stored_value: str) -> bool:
+    """Validate a PBKDF2 password hash stored as salt_hex:hash_hex."""
+    try:
+        salt_hex, expected_hex = stored_value.split(":", 1)
+        salt = bytes.fromhex(salt_hex)
+        expected = bytes.fromhex(expected_hex)
+        candidate = hashlib.pbkdf2_hmac("sha256", password.encode("utf-8"), salt, 310_000)
+        return hmac.compare_digest(candidate, expected)
+    except (ValueError, TypeError):
+        return False
+
+
+def require_admin() -> None:
+    """Gate the dashboard behind credentials stored in Streamlit Secrets."""
+    if st.session_state.get("authenticated", False):
+        with st.sidebar:
+            st.success("تم تسجيل الدخول كمسؤول")
+            if st.button("تسجيل الخروج", use_container_width=True):
+                st.session_state.authenticated = False
+                st.rerun()
+        return
+
+    st.markdown("<div style='max-width:520px;margin:8vh auto 0;'>", unsafe_allow_html=True)
+    st.markdown('<div class="eyebrow">SCENARIOFORGE / ADMIN ACCESS</div>', unsafe_allow_html=True)
+    st.title("تسجيل دخول الإدارة")
+    st.markdown('<div class="subtitle">أدخل بيانات المسؤول للوصول إلى محرك السيناريوهات.</div>', unsafe_allow_html=True)
+    with st.form("admin_login"):
+        username = st.text_input("اسم المستخدم", placeholder="admin")
+        password = st.text_input("كلمة المرور", type="password")
+        submitted = st.form_submit_button("دخول آمن", use_container_width=True)
+    if submitted:
+        admin_config = st.secrets.get("admin", {})
+        expected_username = admin_config.get("username", "")
+        stored_hash = admin_config.get("password_hash", "")
+        if username == expected_username and _password_matches(password, stored_hash):
+            st.session_state.authenticated = True
+            st.rerun()
+        st.error("بيانات الدخول غير صحيحة.")
+    st.caption("تُخزّن كلمة المرور كتجزئة PBKDF2 داخل Streamlit Secrets ولا تُحفظ في GitHub.")
+    st.markdown("</div>", unsafe_allow_html=True)
+    st.stop()
+
+
+require_admin()
 
 # ---------- Calculation engine ----------
 def calculate(fixed_costs: float, variable_cost: float, price: float, units: float) -> dict:
