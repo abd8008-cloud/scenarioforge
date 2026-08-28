@@ -3,6 +3,9 @@ import hmac
 import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
+import requests
+from bs4 import BeautifulSoup
+from urllib.parse import urlparse
 
 st.set_page_config(
     page_title="ScenarioForge | Digital Business Scenario Engine",
@@ -50,6 +53,44 @@ st.markdown(
 )
 
 # ---------- Secure admin authentication ----------
+def analyze_platform_url(url: str, market: str) -> dict:
+    """Extract public platform signals and search for related competitors."""
+    parsed = urlparse(url if url.startswith(("http://", "https://")) else f"https://{url}")
+    normalized_url = parsed.geturl()
+    if parsed.scheme not in {"http", "https"} or not parsed.netloc:
+        raise ValueError("أدخل رابطًا صحيحًا يبدأ بـ https://")
+    headers = {"User-Agent": "ScenarioForge-Market-Analyzer/1.0"}
+    response = requests.get(normalized_url, headers=headers, timeout=15)
+    response.raise_for_status()
+    soup = BeautifulSoup(response.text, "html.parser")
+    for tag in soup(["script", "style", "noscript"]):
+        tag.decompose()
+    title = (soup.title.get_text(" ", strip=True) if soup.title else parsed.netloc)
+    description_tag = soup.find("meta", attrs={"name": "description"})
+    description = description_tag.get("content", "").strip() if description_tag else ""
+    headings = [tag.get_text(" ", strip=True) for tag in soup.find_all(["h1", "h2", "h3"]) if tag.get_text(strip=True)]
+    nav_items = [tag.get_text(" ", strip=True) for tag in soup.find_all("a") if tag.get_text(strip=True)]
+    service_terms = list(dict.fromkeys(headings + nav_items))[:18]
+    brand = title.split("|")[0].split("-")[0].strip()[:80]
+    query = f"{brand} competitors {market}"
+    search_response = requests.get("https://html.duckduckgo.com/html/", params={"q": query}, headers=headers, timeout=15)
+    search_soup = BeautifulSoup(search_response.text, "html.parser")
+    competitors = []
+    own_domain = parsed.netloc.lower().replace("www.", "")
+    for result in search_soup.select(".result"):
+        link = result.select_one(".result__a")
+        snippet = result.select_one(".result__snippet")
+        if not link:
+            continue
+        href = link.get("href", "")
+        result_domain = urlparse(href).netloc.lower().replace("www.", "")
+        if result_domain and result_domain != own_domain:
+            competitors.append({"name": link.get_text(" ", strip=True), "url": href, "summary": snippet.get_text(" ", strip=True) if snippet else ""})
+        if len(competitors) == 6:
+            break
+    return {"url": normalized_url, "domain": parsed.netloc, "title": title, "description": description, "services": service_terms, "competitors": competitors, "query": query}
+
+
 def _password_matches(password: str, stored_value: str) -> bool:
     """Validate a PBKDF2 password hash stored as salt_hex:hash_hex."""
     try:
@@ -106,7 +147,54 @@ require_admin()
 with st.sidebar:
     st.divider()
     st.markdown('<div class="eyebrow">NAVIGATION</div>', unsafe_allow_html=True)
-    page = st.radio("اختر الشاشة", ["لوحة التحليل", "كيفية الاستخدام", "عن ScenarioForge"], label_visibility="collapsed")
+    page = st.radio("اختر الشاشة", ["لوحة التحليل", "تحليل منصة عبر الرابط", "كيفية الاستخدام", "عن ScenarioForge"], label_visibility="collapsed")
+
+if page == "تحليل منصة عبر الرابط":
+    st.markdown('<div class="eyebrow">MARKET INTELLIGENCE</div>', unsafe_allow_html=True)
+    st.title("تحليل منصة وسوق عبر الإنترنت")
+    st.markdown('<div class="subtitle">أدخل رابط منصة عامة لتحليل وصفها وخدماتها واكتشاف نتائج منافسين مرتبطة بالسوق المختار.</div>', unsafe_allow_html=True)
+    st.warning("يحلل النظام المعلومات العامة المتاحة فقط. النتائج الأولية تحتاج مراجعة بشرية، ولا تمثل تقريرًا تجاريًا مؤكدًا.")
+    analysis_market = st.selectbox("السوق الذي تريد تحليل المنصة فيه", list(MARKETS.keys()), index=0)
+    platform_url = st.text_input("رابط المنصة", placeholder="https://example.com")
+    analyze_button = st.button("بدء التحليل الذكي", type="primary", use_container_width=True)
+    if analyze_button:
+        if not platform_url.strip():
+            st.error("أدخل رابط المنصة أولًا.")
+        else:
+            try:
+                with st.spinner("يتم قراءة الصفحة والبحث عن نتائج مرتبطة بالسوق..."):
+                    result = analyze_platform_url(platform_url.strip(), analysis_market)
+                st.session_state.platform_analysis = result
+            except requests.RequestException as error:
+                st.error(f"تعذر الوصول إلى الرابط: {error}")
+            except ValueError as error:
+                st.error(str(error))
+            except Exception:
+                st.error("تعذر تحليل الصفحة. تأكد من أن الرابط عام ويعمل من الإنترنت.")
+    result = st.session_state.get("platform_analysis")
+    if result:
+        st.markdown('<div class="section-label">01 / PLATFORM PROFILE</div>', unsafe_allow_html=True)
+        profile_cols = st.columns(3)
+        profile_cols[0].metric("المنصة", result["title"][:40])
+        profile_cols[1].metric("النطاق", result["domain"])
+        profile_cols[2].metric("السوق", analysis_market)
+        st.markdown('<div class="panel">', unsafe_allow_html=True)
+        st.subheader("وصف المنصة")
+        st.write(result["description"] or "لم يتم العثور على وصف Meta واضح؛ راجع عنوان الصفحة والمحتوى يدويًا.")
+        st.markdown('</div>', unsafe_allow_html=True)
+        st.markdown('<div class="section-label">02 / SERVICE SIGNALS</div>', unsafe_allow_html=True)
+        service_df = pd.DataFrame({"إشارة مستخرجة من الصفحة": result["services"] or ["لم يتم العثور على عناوين واضحة"]})
+        st.dataframe(service_df, hide_index=True, use_container_width=True)
+        st.markdown('<div class="section-label">03 / COMPETITOR DISCOVERY</div>', unsafe_allow_html=True)
+        st.caption(f"استعلام البحث المستخدم: {result['query']}")
+        competitor_df = pd.DataFrame(result["competitors"])
+        if not competitor_df.empty:
+            competitor_df.columns = ["الاسم", "الرابط", "ملخص النتيجة"]
+            st.dataframe(competitor_df, hide_index=True, use_container_width=True, column_config={"الرابط": st.column_config.LinkColumn("الرابط")})
+        else:
+            st.info("لم يتم العثور على نتائج منافسين كافية؛ جرّب رابط منصة أو سوقًا مختلفًا.")
+        st.info("التحليل يعتمد على محتوى الصفحة العامة ونتائج البحث وقت التنفيذ. لا تُدخل روابط تتطلب تسجيل دخول أو بيانات سرية.")
+    st.stop()
 
 if page == "كيفية الاستخدام":
     st.markdown('<div class="eyebrow">QUICK START GUIDE</div>', unsafe_allow_html=True)
