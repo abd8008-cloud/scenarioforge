@@ -33,6 +33,11 @@ st.markdown(
     .positive { color:#087f5b; } .negative { color:#c92a2a; } .neutral { color:#667085; }
     .stSlider [data-baseweb="slider"] { margin-top:-.2rem; }
     div[data-testid="stMetric"] { background:#ffffff; border:1px solid #d9e2ef; padding:1rem; border-radius:14px; }
+    div.stButton > button, div.stFormSubmitButton > button { border-radius:10px; min-height:2.7rem; font-weight:700; border:1px solid #b8c7da; background:#f8fafc; color:#14213d; transition:all .2s ease; }
+    div.stButton > button:hover, div.stFormSubmitButton > button:hover { border-color:#087f5b; color:#087f5b; box-shadow:0 5px 15px rgba(8,127,91,.12); }
+    .login-card { background:#ffffff; border:1px solid #d9e2ef; border-radius:22px; padding:2rem; box-shadow:0 18px 45px rgba(30,55,90,.12); }
+    .help-card { background:#ffffff; border:1px solid #d9e2ef; border-radius:16px; padding:1.25rem; min-height:155px; box-shadow:0 8px 24px rgba(30,55,90,.06); }
+    .step-number { display:inline-flex; width:30px; height:30px; border-radius:50%; align-items:center; justify-content:center; background:#e5f7f0; color:#087f5b; font-weight:800; margin-left:.4rem; }
     </style>
     """, unsafe_allow_html=True,
 )
@@ -60,14 +65,14 @@ def require_admin() -> None:
                 st.rerun()
         return
 
-    st.markdown("<div style='max-width:520px;margin:8vh auto 0;'>", unsafe_allow_html=True)
+    st.markdown('<div class="login-card" style="max-width:520px;margin:8vh auto 0;">', unsafe_allow_html=True)
     st.markdown('<div class="eyebrow">SCENARIOFORGE / ADMIN ACCESS</div>', unsafe_allow_html=True)
-    st.title("تسجيل دخول الإدارة")
-    st.markdown('<div class="subtitle">أدخل بيانات المسؤول للوصول إلى محرك السيناريوهات.</div>', unsafe_allow_html=True)
+    st.title("مرحبًا بك في ScenarioForge")
+    st.markdown('<div class="subtitle">سجّل الدخول للوصول إلى لوحة تحليل السيناريوهات المالية.</div>', unsafe_allow_html=True)
     with st.form("admin_login"):
         username = st.text_input("اسم المستخدم", placeholder="abood808")
         password = st.text_input("كلمة المرور", type="password")
-        submitted = st.form_submit_button("دخول آمن", use_container_width=True)
+        submitted = st.form_submit_button("دخول إلى لوحة التحليل", use_container_width=True)
     if submitted:
         try:
             admin_config = st.secrets.get("admin", {})
@@ -89,6 +94,43 @@ def require_admin() -> None:
 
 
 require_admin()
+
+# ---------- App navigation and guidance screens ----------
+with st.sidebar:
+    st.divider()
+    st.markdown('<div class="eyebrow">NAVIGATION</div>', unsafe_allow_html=True)
+    page = st.radio("اختر الشاشة", ["لوحة التحليل", "كيفية الاستخدام", "عن ScenarioForge"], label_visibility="collapsed")
+
+if page == "كيفية الاستخدام":
+    st.markdown('<div class="eyebrow">QUICK START GUIDE</div>', unsafe_allow_html=True)
+    st.title("كيف تستخدم محرك السيناريوهات؟")
+    st.markdown('<div class="subtitle">أربع خطوات بسيطة لتحويل أرقام مشروعك إلى مقارنة تساعدك على اتخاذ القرار.</div>', unsafe_allow_html=True)
+    guide = st.columns(4)
+    steps = [("01", "اختر السوق", "اختر السعودية أو أي سوق آخر، وستتغير العملة المعروضة تلقائيًا."), ("02", "أدخل خط الأساس", "أدخل التكاليف الثابتة وتكلفة الوحدة والسعر وحجم المبيعات."), ("03", "اختبر ماذا لو؟", "حرّك الشرائح لاختبار رفع السعر أو خفض التكلفة أو زيادة المبيعات."), ("04", "اقرأ القرار", "قارن الربح ونقطة التعادل والهامش واختر الفرضية الأنسب.")]
+    for column, (number, title, text) in zip(guide, steps):
+        with column:
+            st.markdown(f'<div class="help-card"><div class="step-number">{number}</div><h3>{title}</h3><p>{text}</p></div>', unsafe_allow_html=True)
+    st.write("")
+    st.markdown('<div class="panel">', unsafe_allow_html=True)
+    st.subheader("ما البيانات التي أحتاجها؟")
+    st.markdown("استخدم أرقام آخر شهر أو متوسط آخر ثلاثة أشهر من فواتيرك ونظام المبيعات. لا تخلط بين إجمالي المبيعات وعدد الوحدات، ولا تدخل المصروفات الشخصية ضمن تكاليف النشاط.")
+    examples = pd.DataFrame({"المدخل": ["التكاليف الثابتة", "التكلفة المتغيرة للوحدة", "سعر البيع للوحدة", "حجم المبيعات"], "مثال": ["8,500", "18", "42", "900 وحدة"], "مصدر مقترح": ["إيجار ورواتب واشتراكات", "فواتير المواد والتغليف", "الفواتير أو قائمة الأسعار", "الكاشير أو تقارير المتجر"]})
+    st.dataframe(examples, hide_index=True, use_container_width=True)
+    st.markdown('</div>', unsafe_allow_html=True)
+    st.stop()
+
+if page == "عن ScenarioForge":
+    st.markdown('<div class="eyebrow">ABOUT THE ENGINE</div>', unsafe_allow_html=True)
+    st.title("عن ScenarioForge")
+    st.markdown('<div class="subtitle">أداة تعليمية لاتخاذ القرار المبني على البيانات للمشاريع الصغيرة.</div>', unsafe_allow_html=True)
+    about_cols = st.columns(3)
+    about = [("محاكاة سريعة", "اختبر قرارات التسعير والتكلفة والمبيعات خلال ثوانٍ."), ("رؤية مالية", "افهم الربح وهامش المساهمة ونقطة التعادل في شاشة واحدة."), ("أسواق متعددة", "اعرض النتائج بعملات عربية ودولية حسب السوق المستهدف.")]
+    for column, (title, text) in zip(about_cols, about):
+        with column:
+            st.markdown(f'<div class="help-card"><h3>{title}</h3><p>{text}</p></div>', unsafe_allow_html=True)
+    st.write("")
+    st.info("النتائج تعتمد على الأرقام التي تدخلها. اختيار السوق يغيّر العملة والتنسيق، لكنه لا يجلب بيانات منافسين أو أسعارًا حية تلقائيًا.")
+    st.stop()
 
 # ---------- Calculation engine ----------
 def calculate(fixed_costs: float, variable_cost: float, price: float, units: float) -> dict:
