@@ -78,7 +78,7 @@ def require_admin() -> None:
         if not expected_username or not stored_hash:
             # Demo-only fallback. Replace with Streamlit Secrets for any real deployment.
             expected_username = "abood808"
-            stored_hash = "1b4c1bac112448be9e3635fb340d4f94:8851dd13377bcc36a4aa5064a4c2a490938006cc56f3bd301d9e5a73101e36f2"
+            stored_hash = "c82259733af969d650d45483afcfd716:c63d466a184ea6956c4bd9fe8fbe67226a0b8e445924112ab503182aa1037447"
         if username == expected_username and _password_matches(password, stored_hash):
             st.session_state.authenticated = True
             st.rerun()
