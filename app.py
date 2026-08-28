@@ -69,9 +69,15 @@ def require_admin() -> None:
         password = st.text_input("كلمة المرور", type="password")
         submitted = st.form_submit_button("دخول آمن", use_container_width=True)
     if submitted:
-        admin_config = st.secrets.get("admin", {})
+        try:
+            admin_config = st.secrets.get("admin", {})
+        except Exception:
+            admin_config = {}
         expected_username = admin_config.get("username", "")
         stored_hash = admin_config.get("password_hash", "")
+        if not expected_username or not stored_hash:
+            st.error("لم يتم إعداد بيانات الإدارة بعد. أضف قسم [admin] في Streamlit Secrets.")
+            st.stop()
         if username == expected_username and _password_matches(password, stored_hash):
             st.session_state.authenticated = True
             st.rerun()
