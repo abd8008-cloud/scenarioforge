@@ -22,7 +22,7 @@
 | المقارنة البصرية | مقارنة مباشرة بين الوضع الحالي والسيناريو المقترح باستخدام مخطط أعمدة. |
 | منحنى الربحية | إظهار تغير الربح مع زيادة الوحدات المباعة، مع خط الصفر لتوضيح منطقة الخسارة والربح. |
 | حاسبة نقطة التعادل | تحديد عدد الوحدات اللازمة لتغطية التكاليف في كل سيناريو. |
-| واجهة فخمة داكنة | تصميم ملائم للاستخدام المكتبي والجوال مع مؤشرات واضحة وتدرجات لونية هادئة. |
+| واجهة فاتحة مرتبة | تصميم ملائم للاستخدام المكتبي والجوال مع مؤشرات واضحة وتدرجات لونية هادئة. |
 
 ## المنطق المالي
 
@@ -41,7 +41,7 @@
 يتطلب المشروع Python 3.10 أو أحدث. بعد تنزيل المستودع، نفّذ الأوامر التالية من داخل مجلد المشروع:
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/scenarioforge.git
+git clone https://github.com/abd8008-cloud/scenarioforge.git
 cd scenarioforge
 python -m venv .venv
 source .venv/bin/activate  # على Windows: .venv\\Scripts\\activate
@@ -81,7 +81,7 @@ python scripts/generate_password_hash.py YOUR_STRONG_PASSWORD
 
 ```toml
 [admin]
-username = "admin"
+username = "abood808"
 password_hash = "ضع_الناتج_هنا"
 ```
 
