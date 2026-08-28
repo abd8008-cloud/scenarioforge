@@ -95,7 +95,7 @@ def require_admin() -> None:
             st.rerun()
         st.error("بيانات الدخول غير صحيحة.")
     st.caption("الوصول محمي بحساب الإدارة. لا تُعرض بيانات الدخول داخل الواجهة.")
-    st.markdown('<div class="login-footer"><strong>عبدالله محمد</strong><br><span>تواصل معي عبر واتساب الشخصي</span><br><a class="whatsapp-link" href="intent://send?phone=97058727698#Intent;scheme=whatsapp;package=com.whatsapp;end" target="_blank">فتح واتساب الشخصي</a><br><small>+97058727698</small></div>', unsafe_allow_html=True)
+    st.markdown('<div class="login-footer"><strong>عبدالله محمد</strong><br><span>تواصل معي عبر واتساب الشخصي</span><br><a class="whatsapp-link" href="intent://send?phone=970598727698#Intent;scheme=whatsapp;package=com.whatsapp;end" target="_blank">فتح واتساب الشخصي</a><br><small>+970598727698</small></div>', unsafe_allow_html=True)
     st.markdown("</div>", unsafe_allow_html=True)
     st.stop()
 
